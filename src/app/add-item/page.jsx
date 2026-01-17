@@ -56,9 +56,13 @@ export default function AddItemPage() {
 
       if (data.success) {
         setSuccess(true);
+        
+        // Show different message based on environment
+        const isProduction = process.env.NODE_ENV === 'production' || window.location.hostname !== 'localhost';
+        
         setTimeout(() => {
           router.push('/items');
-        }, 1500);
+        }, isProduction ? 2500 : 1500);
       } else {
         setError(data.message || 'Failed to add item');
       }
@@ -70,14 +74,26 @@ export default function AddItemPage() {
   };
 
   if (success) {
+    const isProduction = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
+    
     return (
       <div className="page">
         <Navigation />
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
+          <div className="text-center max-w-md">
             <div className="text-green-500 mb-4 text-6xl">✓</div>
             <h2 className="text-2xl font-bold mb-2">Math Topic Added Successfully!</h2>
-            <p className="text-gray-600">Redirecting to topics page...</p>
+            {isProduction ? (
+              <div className="space-y-2">
+                <p className="text-gray-600">Your topic has been added to the demo.</p>
+                <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
+                  <strong>Demo Mode:</strong> Changes will reset on page refresh. 
+                  For permanent storage, consider upgrading to a database solution.
+                </p>
+              </div>
+            ) : (
+              <p className="text-gray-600">Redirecting to topics page...</p>
+            )}
           </div>
         </div>
         <Footer />
