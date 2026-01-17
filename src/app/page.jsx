@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { authUtils } from "@/lib/auth";
-import { initializeItems } from "@/lib/data";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -35,9 +34,6 @@ export default function Home() {
   });
 
   useEffect(() => {
-    // Initialize items in localStorage
-    initializeItems();
-
     // Check authentication state
     setIsLoggedIn(authUtils.isLoggedIn());
 

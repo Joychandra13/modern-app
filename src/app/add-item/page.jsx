@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authUtils } from '@/lib/auth';
-import { initializeItems } from '@/lib/data';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -24,9 +23,6 @@ export default function AddItemPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Initialize items in localStorage
-    initializeItems();
-    
     // Check authentication
     if (!authUtils.isLoggedIn()) {
       router.push('/login');
