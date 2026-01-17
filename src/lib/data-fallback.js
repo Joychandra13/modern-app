@@ -98,9 +98,11 @@ const readItems = async () => {
     const data = await fs.readFile(DATA_FILE, 'utf8');
     const items = JSON.parse(data);
     memoryStore = items; // Sync memory store
+    console.log('Read from file system:', items.length, 'items'); // Debug log
     return items;
   } catch (error) {
     // Fallback to memory store (production)
+    console.log('File system read failed, using memory store with', memoryStore.length, 'items'); // Debug log
     return memoryStore;
   }
 };
@@ -109,12 +111,14 @@ const readItems = async () => {
 const writeItems = async (items) => {
   // Always update memory store
   memoryStore = items;
+  console.log('Updated memory store with', items.length, 'items'); // Debug log
   
   try {
     // Try to write to file system (works in development)
     const dataDir = path.join(process.cwd(), 'data');
     await fs.mkdir(dataDir, { recursive: true });
     await fs.writeFile(DATA_FILE, JSON.stringify(items, null, 2));
+    console.log('Successfully wrote to file system'); // Debug log
   } catch (error) {
     // In production, we can't write to file system, so just use memory
     console.log('File system write failed, using memory store only');

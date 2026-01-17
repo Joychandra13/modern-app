@@ -163,7 +163,11 @@ export default function ItemsPage() {
               )}
             </div>
           ) : (
-            <div className="grid-items" >
+            <>
+              <div className="mb-4 text-sm text-gray-600">
+                Found {items.length} math topics
+              </div>
+              <div className="grid-items" >
               {items.map((item) => {
                 // Difficulty colors
                 const difficultyColors = {
@@ -237,6 +241,7 @@ export default function ItemsPage() {
                 );
               })}
             </div>
+            </>
           )}
         </div>
       </main>

@@ -49,6 +49,9 @@ export default function Home() {
       });
       if (response.ok) {
         const items = await response.json();
+        console.log('Home page - Fetched items:', items); // Debug log
+        console.log('Home page - Items count:', items.length); // Debug log
+        
         // Sort by creation date (newest first) and get the latest 6 items
         const sortedItems = items.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
