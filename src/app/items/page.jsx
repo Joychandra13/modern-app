@@ -6,6 +6,9 @@ import { authUtils } from '@/lib/auth';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
+import SuccessNotification from '@/components/SuccessNotification';
+import ErrorNotification from '@/components/ErrorNotification';
 import { 
   FiEdit3, 
   FiTrash2, 
@@ -19,6 +22,24 @@ export default function ItemsPage() {
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  
+  // Delete modal state
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    item: null
+  });
+  
+  // Success notification state
+  const [successNotification, setSuccessNotification] = useState({
+    isVisible: false,
+    message: ''
+  });
+
+  // Error notification state
+  const [errorNotification, setErrorNotification] = useState({
+    isVisible: false,
+    message: ''
+  });
 
   useEffect(() => {
     // Check authentication state
@@ -43,12 +64,19 @@ export default function ItemsPage() {
     }
   };
 
-  const handleDelete = async (id, name) => {
-    if (!confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) {
-      return;
-    }
+  const handleDelete = (item) => {
+    setDeleteModal({
+      isOpen: true,
+      item: item
+    });
+  };
 
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.item) return;
+
+    const { id, name } = deleteModal.item;
     setDeletingId(id);
+
     try {
       const response = await fetch(`/api/items/${id}`, {
         method: 'DELETE',
@@ -59,14 +87,36 @@ export default function ItemsPage() {
       if (data.success) {
         // Remove item from local state
         setItems(items.filter(item => item.id !== id));
+        
+        // Close modal
+        setDeleteModal({ isOpen: false, item: null });
+        
+        // Show success notification
+        setSuccessNotification({
+          isVisible: true,
+          message: `"${name}" has been deleted successfully.`
+        });
       } else {
-        alert('Failed to delete item: ' + data.message);
+        // Show error notification
+        setErrorNotification({
+          isVisible: true,
+          message: `Failed to delete "${name}": ${data.message}`
+        });
       }
     } catch (error) {
-      alert('Network error. Please try again.');
+      // Show error notification
+      setErrorNotification({
+        isVisible: true,
+        message: 'Network error. Please check your connection and try again.'
+      });
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const handleDeleteCancel = () => {
+    if (deletingId) return; // Prevent closing while deleting
+    setDeleteModal({ isOpen: false, item: null });
   };
 
   if (loading) {
@@ -138,7 +188,7 @@ export default function ItemsPage() {
                         <button
                           onClick={(e) => {
                             e.preventDefault();
-                            handleDelete(item.id, item.name);
+                            handleDelete(item);
                           }}
                           disabled={deletingId === item.id}
                           className="admin-btn admin-btn-delete disabled:opacity-50"
@@ -192,6 +242,30 @@ export default function ItemsPage() {
       </main>
 
       <Footer />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        itemName={deleteModal.item?.name || ''}
+        itemType="math topic"
+        isDeleting={deletingId === deleteModal.item?.id}
+      />
+
+      {/* Success Notification */}
+      <SuccessNotification
+        isVisible={successNotification.isVisible}
+        message={successNotification.message}
+        onClose={() => setSuccessNotification({ isVisible: false, message: '' })}
+      />
+
+      {/* Error Notification */}
+      <ErrorNotification
+        isVisible={errorNotification.isVisible}
+        message={errorNotification.message}
+        onClose={() => setErrorNotification({ isVisible: false, message: '' })}
+      />
     </div>
   );
 }
