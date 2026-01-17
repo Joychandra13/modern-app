@@ -5,7 +5,6 @@ import { fallbackOperations as dbOperations } from '@/lib/data-fallback';
 export async function GET() {
   try {
     const items = await dbOperations.getItems();
-    console.log('API GET /api/items - returning', items.length, 'items'); // Debug log
     return NextResponse.json(items);
   } catch (error) {
     console.error('GET /api/items error:', error);

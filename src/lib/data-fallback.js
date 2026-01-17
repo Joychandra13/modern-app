@@ -86,42 +86,56 @@ const defaultItems = [
   }
 ];
 
-// In-memory storage for the session (will reset on each deployment)
-let memoryStore = [...defaultItems];
+// For production, we'll use a simple approach where we always start with default items
+// and any new items added during the session will be available until the next deployment
+// This is expected behavior for the fallback system
+
+// Global variable to store items (resets on each serverless function cold start)
+let globalItemsCache = null;
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'items.json');
 
-// Try to read from file system, fallback to memory
+// Initialize items cache
+const initializeItemsCache = () => {
+  if (!globalItemsCache) {
+    globalItemsCache = [...defaultItems];
+    console.log('🚀 Initialized items cache with', globalItemsCache.length, 'default items');
+  }
+  return globalItemsCache;
+};
+
+// Try to read from file system, fallback to cache
 const readItems = async () => {
   try {
     // Try to read from file system first (works in development)
     const data = await fs.readFile(DATA_FILE, 'utf8');
     const items = JSON.parse(data);
-    memoryStore = items; // Sync memory store
-    console.log('Read from file system:', items.length, 'items'); // Debug log
+    globalItemsCache = items; // Sync cache
+    console.log('📁 Read from file system:', items.length, 'items');
     return items;
   } catch (error) {
-    // Fallback to memory store (production)
-    console.log('File system read failed, using memory store with', memoryStore.length, 'items'); // Debug log
-    return memoryStore;
+    // Fallback to cache (production)
+    const cache = initializeItemsCache();
+    console.log('💾 Using items cache with', cache.length, 'items');
+    return [...cache]; // Return a copy to avoid mutations
   }
 };
 
-// Try to write to file system, fallback to memory only
+// Try to write to file system, update cache
 const writeItems = async (items) => {
-  // Always update memory store
-  memoryStore = items;
-  console.log('Updated memory store with', items.length, 'items'); // Debug log
+  // Always update cache
+  globalItemsCache = [...items]; // Store a copy
+  console.log('💾 Updated items cache with', items.length, 'items');
   
   try {
     // Try to write to file system (works in development)
     const dataDir = path.join(process.cwd(), 'data');
     await fs.mkdir(dataDir, { recursive: true });
     await fs.writeFile(DATA_FILE, JSON.stringify(items, null, 2));
-    console.log('Successfully wrote to file system'); // Debug log
+    console.log('📁 Successfully wrote to file system');
   } catch (error) {
-    // In production, we can't write to file system, so just use memory
-    console.log('File system write failed, using memory store only');
+    // In production, we can't write to file system, so just use cache
+    console.log('⚠️ File system write failed, using cache only (expected in production)');
   }
 };
 
