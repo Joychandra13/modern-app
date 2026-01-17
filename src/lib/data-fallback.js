@@ -1,5 +1,5 @@
-// Bulletproof fallback for Vercel serverless environment
-// This version handles all edge cases and ensures no errors
+// Bulletproof fallback with session persistence for Vercel
+// Uses a global variable that persists during the serverless function lifecycle
 
 const defaultItems = [
   {
@@ -54,22 +54,37 @@ const defaultItems = [
   }
 ];
 
+// Global variable to store items during serverless function lifecycle
+// This will persist items for a short time in production
+let globalItemsStore = null;
+
+// Initialize the store
+function initializeStore() {
+  if (!globalItemsStore) {
+    globalItemsStore = [...defaultItems];
+    console.log('🚀 Initialized global store with', globalItemsStore.length, 'items');
+  }
+  return globalItemsStore;
+}
+
 export const fallbackOperations = {
   // Get all items
   async getItems() {
-    // Always return default items (safe for all environments)
-    return Promise.resolve([...defaultItems]);
+    const store = initializeStore();
+    return Promise.resolve([...store]);
   },
 
   // Get single item by ID
   async getItem(id) {
-    const items = await this.getItems();
-    const item = items.find(item => item.id === parseInt(id));
+    const store = initializeStore();
+    const item = store.find(item => item.id === parseInt(id));
     return Promise.resolve(item || null);
   },
 
-  // Create new item - always succeeds
+  // Create new item - actually adds to the store
   async createItem(itemData) {
+    const store = initializeStore();
+    
     // Generate a new item with safe defaults
     const newItem = {
       id: Date.now(), // Use timestamp as ID to avoid conflicts
@@ -82,33 +97,47 @@ export const fallbackOperations = {
       createdAt: new Date().toISOString()
     };
     
-    // Always return success
+    // Actually add to the store
+    store.push(newItem);
+    console.log('✅ Added item to store. Total items:', store.length);
+    
     return Promise.resolve(newItem);
   },
 
-  // Update item - always succeeds
+  // Update item - actually updates in the store
   async updateItem(id, itemData) {
-    const items = await this.getItems();
-    const item = items.find(item => item.id === parseInt(id));
+    const store = initializeStore();
+    const index = store.findIndex(item => item.id === parseInt(id));
     
-    if (!item) {
+    if (index === -1) {
       return Promise.resolve(null);
     }
     
-    // Return updated item
-    const updatedItem = {
-      ...item,
+    // Actually update the item in store
+    store[index] = {
+      ...store[index],
       ...itemData,
       updatedAt: new Date().toISOString()
     };
     
-    return Promise.resolve(updatedItem);
+    console.log('✅ Updated item in store:', store[index].name);
+    
+    return Promise.resolve(store[index]);
   },
 
-  // Delete item - always succeeds
+  // Delete item - actually removes from store
   async deleteItem(id) {
-    const items = await this.getItems();
-    const item = items.find(item => item.id === parseInt(id));
-    return Promise.resolve(!!item);
+    const store = initializeStore();
+    const index = store.findIndex(item => item.id === parseInt(id));
+    
+    if (index === -1) {
+      return Promise.resolve(false);
+    }
+    
+    // Actually remove from store
+    const removedItem = store.splice(index, 1)[0];
+    console.log('✅ Deleted item from store:', removedItem.name, 'Total items:', store.length);
+    
+    return Promise.resolve(true);
   }
 };

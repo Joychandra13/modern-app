@@ -47,6 +47,19 @@ export default function ItemsPage() {
     
     // Fetch items
     fetchItems();
+    
+    // Listen for storage events (when items are added from other tabs/pages)
+    const handleStorageChange = () => {
+      fetchItems();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('itemsUpdated', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('itemsUpdated', handleStorageChange);
+    };
   }, []);
 
   const fetchItems = async () => {

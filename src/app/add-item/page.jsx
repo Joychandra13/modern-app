@@ -57,6 +57,11 @@ export default function AddItemPage() {
       if (data.success) {
         setSuccess(true);
         
+        // Trigger a custom event to refresh items list
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('itemsUpdated'));
+        }
+        
         // Show different message based on environment
         const isProduction = process.env.NODE_ENV === 'production' || window.location.hostname !== 'localhost';
         
