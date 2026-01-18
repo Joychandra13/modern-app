@@ -165,15 +165,15 @@ export default function Home() {
                 </div>
 
                 {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                  <Link href="/items" className="btn btn-primary btn-lg group">
+                <div className="flex flex-col sm:flex-row lg:flex-wrap gap-4 pt-4">
+                  <Link href="/items" className="lg:w-full xl:flex-1 btn btn-primary btn-lg group ">
                     <FiPlay className="mr-2 group-hover:translate-x-1 transition-transform" />
                     Start Learning Now
                     <FiArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                   </Link>
                   <Link
                     href="/login"
-                    className="btn btn-secondary btn-lg group"
+                    className="lg:w-full xl:flex-1 btn btn-secondary btn-lg group "
                   >
                     <FiLogIn className="mr-2" />
                     Log In Now
