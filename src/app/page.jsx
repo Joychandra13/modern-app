@@ -124,10 +124,10 @@ export default function Home() {
 
       <main>
         {/* Hero Section */}
-        <section className="flex items-center mt-25 mb-10 lg:mb-30">
+        <section className="flex items-center mt-10 xl:mt-25 mb-10 lg:mb-30">
           <div className="container">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-              <div className="space-y-8">
+              <div className="space-y-8 order-2 lg:order-1">
                 {/* Badge */}
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full text-sm font-medium">
                   <FiStar className="text-yellow-400" />
@@ -136,10 +136,8 @@ export default function Home() {
 
                 {/* Main Heading */}
                 <div className="space-y-6">
-                  <h1 className="text-3xl lg:text-5xl font-bold leading-tight">
-                    Master
-                    Mathematics
-                    with Expert Solutions
+                  <h1 className="text-3xl md:text-4xl xl:text-5xl font-bold leading-tight">
+                    Master Mathematics with Expert Solutions
                   </h1>
 
                   <p className="text-xl text-gray-600 leading-relaxed ">
@@ -208,7 +206,7 @@ export default function Home() {
               </div>
 
               {/* Hero Image/Visual */}
-              <div className="relative">
+              <div className="relative order-1 lg:order-2">
                 {/* Main Image */}
                 <div className="relative w-full aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl overflow-hidden shadow-2xl">
                   <img
